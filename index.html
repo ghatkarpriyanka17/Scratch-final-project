@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space Explorer - Crystal Harvest</title>
+  <!-- Futuristic and clean Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Main Game Container -->
+  <div id="game-container">
+    <!-- Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Glassmorphic HUD (Heads-Up Display) -->
+    <div id="hud" class="ui-layer hidden">
+      <div class="hud-left">
+        <div class="hud-stat">
+          <span class="label">SCORE</span>
+          <span id="hud-score" class="value text-glow">000,000</span>
+        </div>
+        <div class="hud-stat">
+          <span class="label">MULTIPLIER</span>
+          <span id="hud-multiplier" class="value text-glow">x1</span>
+        </div>
+      </div>
+      
+      <div class="hud-center">
+        <!-- Shield and Health Indicators -->
+        <div class="bar-container">
+          <div class="bar-label">
+            <span>SHIELD</span>
+            <span id="shield-percent">100%</span>
+          </div>
+          <div class="bar-outer">
+            <div id="shield-fill" class="bar-inner shield-glow" style="width: 100%;"></div>
+          </div>
+        </div>
+        <div class="bar-container">
+          <div class="bar-label">
+            <span>HULL INTEGRITY</span>
+            <span id="hull-percent">100%</span>
+          </div>
+          <div class="bar-outer">
+            <div id="hull-fill" class="bar-inner hull-glow" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="hud-stat">
+          <span class="label">CRYSTALS</span>
+          <span id="hud-crystals" class="value crystal-glow-text">0</span>
+        </div>
+        <div class="hud-stat">
+          <span class="label">SPEED</span>
+          <span id="hud-speed" class="value">0 u/s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Power-up Indicator -->
+    <div id="powerup-status" class="hidden">
+      <span id="powerup-icon">⚡</span>
+      <span id="powerup-name">BOOST</span>
+      <div class="powerup-bar-outer">
+        <div id="powerup-bar-fill" class="powerup-bar-inner"></div>
+      </div>
+    </div>
+
+    <!-- Screen Overlays -->
+    <!-- 1. Main Menu Overlay -->
+    <div id="main-menu" class="overlay">
+      <div class="overlay-content menu-card">
+        <h1 class="game-title text-glow">SPACE<br><span class="highlight">EXPLORER</span></h1>
+        <p class="game-tagline">Harvest Energy Crystals. Avoid Asteroid Fields. Survive.</p>
+        
+        <div class="high-score-container">
+          <span class="hs-label">GALAXY HIGH SCORE:</span>
+          <span id="menu-high-score" class="hs-value text-glow">000,000</span>
+        </div>
+
+        <div class="menu-actions">
+          <button id="btn-start" class="btn primary-btn text-glow">LAUNCH MISSION</button>
+          <button id="btn-audio-toggle" class="btn secondary-btn">
+            <span class="icon">🔊</span> AUDIO ON
+          </button>
+        </div>
+
+        <div class="controls-panel">
+          <h3>MISSION CONTROLS</h3>
+          <div class="controls-grid">
+            <div class="control-item">
+              <span class="key">W, A, S, D</span> / <span class="key">▲, ◄, ▼, ►</span>
+              <span class="desc">Move Spaceship</span>
+            </div>
+            <div class="control-item">
+              <span class="key">MOUSE MOVE</span>
+              <span class="desc">Aim / Steer (Hold Left Click to Thrust)</span>
+            </div>
+            <div class="control-item">
+              <span class="key">ESC</span>
+              <span class="desc">Pause Game</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Pause Overlay -->
+    <div id="pause-menu" class="overlay hidden">
+      <div class="overlay-content menu-card pause-card">
+        <h2 class="menu-title text-glow">MISSION PAUSED</h2>
+        <p class="menu-subtitle">System status normal. Thrusters offline.</p>
+        
+        <div class="menu-actions stacked">
+          <button id="btn-resume" class="btn primary-btn">RESUME MISSION</button>
+          <button id="btn-restart-pause" class="btn secondary-btn">RESTART MISSION</button>
+          <button id="btn-quit" class="btn danger-btn">ABANDON MISSION</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Game Over Overlay -->
+    <div id="game-over-menu" class="overlay hidden">
+      <div class="overlay-content menu-card game-over-card">
+        <h2 class="menu-title text-glow danger-text">MISSION FAILED</h2>
+        <p class="menu-subtitle">Spaceship hull was compromised in the asteroid field.</p>
+        
+        <div class="stats-summary">
+          <div class="stat-box">
+            <span class="stat-lbl">FINAL SCORE</span>
+            <span id="go-score" class="stat-val text-glow">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">CRYSTALS HARVESTED</span>
+            <span id="go-crystals" class="stat-val crystal-glow-text">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">MAX MULTIPLIER</span>
+            <span id="go-multiplier" class="stat-val">x1</span>
+          </div>
+        </div>
+
+        <div class="high-score-announcement hidden" id="new-high-score-badge">
+          🎉 NEW GALAXY RECORD! 🎉
+        </div>
+
+        <div class="menu-actions stacked">
+          <button id="btn-restart" class="btn primary-btn text-glow">RELAUNCH MISSION</button>
+          <button id="btn-menu" class="btn secondary-btn">RETURN TO BASE</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Touch Joystick (Rendered only on touch events) -->
+    <div id="virtual-joystick-container" class="hidden">
+      <div id="joystick-base">
+        <div id="joystick-handle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load scripts in logical order -->
+  <script src="audio.js"></script>
+  <script src="particles.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
